@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>内容质量检测器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0d0d14;
+      --bg-secondary: #13131f;
+      --bg-card: #181824;
+      --bg-card-hover: #1e1e2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --text-primary: #f0f0f5;
+      --text-secondary: rgba(255, 255, 255, 0.5);
+      --text-muted: rgba(255, 255, 255, 0.35);
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+    }
+
+    body {
+      width: 380px;
+      min-height: 280px;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* 头部 */
+    .header {
+      background: var(--bg-secondary);
+      padding: 18px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+
+    /* 内容区 */
+    .content { padding: 16px 20px; }
+
+    /* 按钮 - 静态设计 */
+    .btn {
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent-purple);
+      color: white;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #7c3aed;
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-summary {
+      background: var(--accent-green);
+      color: white;
+    }
+    .btn-summary:hover:not(:disabled) {
+      background: #059669;
+    }
+    .btn-summary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 10px 16px;
+    }
+    .btn-ghost:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    /* 状态提示 */
+    .status {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .status.loading {
+      background: rgba(139, 92, 246, 0.12);
+      color: var(--accent-purple);
+    }
+    .status.error {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--accent-red);
+    }
+    .status.success {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent-green);
+    }
+    .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+    }
+
+    /* 设置区域 */
+    .settings-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      margin-top: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .settings-toggle:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+    .settings-toggle .arrow {
+      color: var(--text-muted);
+    }
+
+    .settings-panel {
+      display: none;
+      margin-top: 8px;
+      padding: 14px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+    .settings-panel.open { display: block; }
+
+    .setting-item { margin-bottom: 14px; }
+    .setting-item:last-child { margin-bottom: 0; }
+
+    .setting-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="password"], input[type="number"] {
+      flex: 1;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    input[type="password"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+    }
+    input[type="number"] { width: 70px; flex: none; }
+
+    select {
+      flex: 1;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    select:focus { outline: none; border-color: var(--accent-purple); }
+
+    .btn-save {
+      background: var(--accent-purple);
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .btn-save:hover { background: #7c3aed; }
+
+    /* 开关 */
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--bg-card);
+      border-radius: 11px;
+      cursor: pointer;
+    }
+    .toggle-switch.active { background: var(--accent-purple); }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+    }
+    .toggle-switch.active::after { transform: translateX(18px); }
+
+    .setting-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>内容质量检测</h1>
+  </div>
+
+  <div class="content">
+    <button class="btn btn-primary" id="analyzeBtn">
+      开始检测
+    </button>
+
+    <button class="btn btn-summary" id="summarizeBtn">
+      智能摘要
+    </button>
+
+    <button class="btn btn-ghost" id="clearBtn">清除缓存</button>
+    <button class="btn btn-ghost" id="logsBtn">查看日志</button>
+
+    <!-- 设置 -->
+    <div class="settings-toggle" id="settingsToggle">
+      <span>设置</span>
+      <span class="arrow">V</span>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+      <div class="setting-item">
+        <label class="setting-label">API Key</label>
+        <div class="setting-row">
+          <input type="password" id="apiKeyInput" placeholder="输入 MiniMax API Key">
+          <button class="btn-save" id="saveApiKey">保存</button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label">检测灵敏度</label>
+        <select id="sensitivitySelect">
+          <option value="high">高（严格模式）</option>
+          <option value="medium" selected>中（适中）</option>
+          <option value="low">低（宽松）</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label">最大检测对数</label>
+        <div class="setting-row">
+          <input type="number" id="maxPairsInput" value="6" min="1" max="20">
+        </div>
+        <div class="setting-desc">范围 1-20</div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-row">
+          <span style="flex:1;font-size:12px;">流式输出</span>
+          <div class="toggle-switch active" id="streamingToggle"></div>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-row">
+          <span style="flex:1;font-size:12px;">窗口置顶</span>
+          <div class="toggle-switch" id="alwaysOnTopToggle"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

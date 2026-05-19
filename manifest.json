@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "内容质量检测器",
+  "version": "1.0",
+  "description": "检测网页正文的冗余、重复和AI感内容",
+  "permissions": ["activeTab", "storage", "scripting", "windows"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "内容质量检测",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["logs.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
