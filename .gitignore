@@ -1,4 +1,10 @@
-# Chrome extension
+# Chrome extension - gitignore
 icons/*.png
 icons/*.svg
-!.gitkeep
+icons/icon.svg
+
+# Test files
+test.js
+test_algorithm.js
+*_progress.md
+*_debug*.md
